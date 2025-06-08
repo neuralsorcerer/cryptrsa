@@ -26,7 +26,7 @@ cargo build
 ### Generating keys
 
 ```bash
-cargo run -- gen --bits 2048 --out mykeys.json
+cargo run -- gen --bits 2048 --out mykeys.json --public-out mypublic.json
 ```
 
 You can also omit the `--message` flag to be prompted for input.
@@ -34,7 +34,7 @@ You can also omit the `--message` flag to be prompted for input.
 ### Encrypting a message
 
 ```bash
-cargo run -- encrypt --key mykeys.json --message "hello"
+cargo run -- encrypt --key mypublic.json --message "hello"
 ```
 
 ### Decrypting a message
@@ -42,6 +42,20 @@ cargo run -- encrypt --key mykeys.json --message "hello"
 ```bash
 cargo run -- decrypt --key mykeys.json --ciphertext <base64>
 ```
+
+### Signing a message
+
+```bash
+cargo run -- sign --key mykeys.json --message "hello" --hash
+```
+
+### Verifying a signature
+
+```bash
+cargo run -- verify --key mypublic.json --message "hello" --signature <base64> --hash
+```
+
+Commands like `encrypt`, `decrypt`, `sign`, and `verify` also support `--in-file` and `--out-file` to read from or write to a file instead of STDIN or STDOUT.
 
 ## License
 

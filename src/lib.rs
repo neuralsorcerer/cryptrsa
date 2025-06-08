@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 use serde_json;
 use std::fs::File;
 use std::path::Path;
+use sha2::{Digest, Sha256};
 
 const TEST_ROUNDS: usize = 16;
 
@@ -17,7 +18,6 @@ fn generate_prime(bits: usize) -> BigUint {
     let mut rng = thread_rng();
     loop {
         let mut prime_candidate = rng.gen_biguint(bits as u64);
-        // ensure odd
         prime_candidate.set_bit(0, true);
         prime_candidate.set_bit((bits - 1) as u64, true);
         if is_prime(&prime_candidate, TEST_ROUNDS) {
@@ -103,10 +103,36 @@ pub fn decrypt(c: &BigUint, d: &BigUint, n: &BigUint) -> BigUint {
     c.modpow(d, n)
 }
 
+pub fn sign(m: &BigUint, d: &BigUint, n: &BigUint) -> BigUint {
+    m.modpow(d, n)
+}
+
+pub fn verify(m: &BigUint, s: &BigUint, e: &BigUint, n: &BigUint) -> bool {
+    m == &s.modpow(e, n)
+}
+
+pub fn sign_hash(msg: &[u8], d: &BigUint, n: &BigUint) -> BigUint {
+    let digest = Sha256::digest(msg);
+    let m = BigUint::from_bytes_be(&digest);
+    sign(&m, d, n)
+}
+
+pub fn verify_hash(msg: &[u8], sig: &BigUint, e: &BigUint, n: &BigUint) -> bool {
+    let digest = Sha256::digest(msg);
+    let m = BigUint::from_bytes_be(&digest);
+    verify(&m, sig, e, n)
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct RSAKeyPair {
     pub e: BigUint,
     pub d: BigUint,
+    pub n: BigUint,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct RSAPublicKey {
+    pub e: BigUint,
     pub n: BigUint,
 }
 
@@ -116,6 +142,27 @@ impl RSAKeyPair {
         Self { e, d, n }
     }
 
+    pub fn save_to<P: AsRef<Path>>(&self, path: P) -> std::io::Result<()> {
+        let file = File::create(path)?;
+        serde_json::to_writer_pretty(file, self)
+            .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))
+    }
+
+    pub fn load_from<P: AsRef<Path>>(path: P) -> std::io::Result<Self> {
+        let file = File::open(path)?;
+        serde_json::from_reader(file)
+            .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))
+    }
+
+    pub fn public_key(&self) -> RSAPublicKey {
+        RSAPublicKey {
+            e: self.e.clone(),
+            n: self.n.clone(),
+        }
+    }
+}
+
+impl RSAPublicKey {
     pub fn save_to<P: AsRef<Path>>(&self, path: P) -> std::io::Result<()> {
         let file = File::create(path)?;
         serde_json::to_writer_pretty(file, self)
