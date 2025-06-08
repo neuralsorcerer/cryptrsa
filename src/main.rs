@@ -4,7 +4,7 @@ use num_bigint::BigUint;
 use std::fs::File;
 use std::io::{self, Read, Write};
 
-use cryptrsa::{decrypt, encrypt, sign, sign_hash, verify, verify_hash, RSAKeyPair};
+use cryptrsa::{decrypt, encrypt, sign, sign_hash, verify, verify_hash, RSAKeyPair, RSAPublicKey};
 
 
 #[derive(Parser)]
@@ -70,6 +70,10 @@ enum Commands {
         #[arg(long)]
         hash: bool,
     },
+    Fingerprint {
+        #[arg(short, long)]
+        key: String,
+    },
 }
 
 fn read_input(arg: Option<String>, file: Option<String>) -> io::Result<String> {
@@ -96,10 +100,22 @@ fn write_output(data: &str, out: Option<String>) -> io::Result<()> {
     }
 }
 
+fn load_public_key(path: &str) -> io::Result<RSAPublicKey> {
+    if let Ok(kp) = RSAKeyPair::load_from(path) {
+        Ok(kp.public_key())
+    } else {
+        RSAPublicKey::load_from(path)
+    }
+}
+
 
 fn main() -> std::io::Result<()> {
     match Cli::parse().command {
-        Commands::Gen { bits, out, public_out } => {
+        Commands::Gen {
+            bits,
+            out,
+            public_out,
+        } => {
             let keys = RSAKeyPair::generate(bits);
             keys.save_to(&out)?;
             if let Some(p) = public_out {
@@ -177,6 +193,11 @@ fn main() -> std::io::Result<()> {
                 verify(&m, &sig, &keys.e, &keys.n)
             };
             println!("{}", if ok { "valid" } else { "invalid" });
+        }
+
+        Commands::Fingerprint { key } => {
+            let pubkey = load_public_key(&key)?;
+            println!("{}", pubkey.fingerprint());
         }
     }
     Ok(())

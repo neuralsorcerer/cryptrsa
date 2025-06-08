@@ -35,3 +35,11 @@ fn public_key_roundtrip() {
     let dec = decrypt(&enc, &keys.d, &keys.n);
     assert_eq!(msg, dec);
 }
+
+#[test]
+fn fingerprint_length() {
+    let keys = RSAKeyPair::generate(512);
+    let public = keys.public_key();
+    let fp = public.fingerprint();
+    assert_eq!(fp.len(), 64);
+}

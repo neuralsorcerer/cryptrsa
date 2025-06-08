@@ -1,6 +1,6 @@
 [package]
 name = "cryptrsa"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 repository = "https://github.com/neuralsorcerer/cryptrsa"
 authors = ["Soumyadip Sarkar <soumyadip@soumyadipsarkar.com>"]
@@ -9,6 +9,8 @@ description = "RSA encryption and signing CLI tool"
 license = "MIT"
 keywords = ["rsa", "encryption", "cli"]
 categories = ["command-line-utilities"]
+homepage = "https://github.com/neuralsorcerer/cryptrsa"
+documentation = "https://docs.rs/cryptrsa"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -23,3 +25,4 @@ clap = { version = "4", features = ["derive"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha2 = "0.10"
+hex = "0.4"

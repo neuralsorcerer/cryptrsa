@@ -1,3 +1,4 @@
+use hex;
 use num_bigint::{BigUint, RandBigInt, ToBigInt};
 use num_integer::Integer;
 use num_traits::{One, Zero};
@@ -150,8 +151,7 @@ impl RSAKeyPair {
 
     pub fn load_from<P: AsRef<Path>>(path: P) -> std::io::Result<Self> {
         let file = File::open(path)?;
-        serde_json::from_reader(file)
-            .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))
+        serde_json::from_reader(file).map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))
     }
 
     pub fn public_key(&self) -> RSAPublicKey {
@@ -168,10 +168,16 @@ impl RSAPublicKey {
         serde_json::to_writer_pretty(file, self)
             .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))
     }
-
     pub fn load_from<P: AsRef<Path>>(path: P) -> std::io::Result<Self> {
         let file = File::open(path)?;
-        serde_json::from_reader(file)
-            .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))
+        serde_json::from_reader(file).map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))
+    }
+
+    pub fn fingerprint(&self) -> String {
+        let mut hasher = Sha256::new();
+        hasher.update(self.e.to_bytes_be());
+        hasher.update(self.n.to_bytes_be());
+        let digest = hasher.finalize();
+        hex::encode(digest)
     }
 }
