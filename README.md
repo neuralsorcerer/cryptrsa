@@ -13,38 +13,34 @@ A step-by-step series of examples that tell you how to get a development environ
 Clone the repository:
 
 ```bash
-git clone https://github.com/neuralsorcerer/custom_rsa
-cd custom_rsa
+git clone https://github.com/neuralsorcerer/cryptrsa
+cd cryptrsa
 ```
 
-### Build the project:
+### Build the project
 
 ```bash
 cargo build
 ```
 
-### Run the project:
+### Generating keys
 
 ```bash
-cargo run
+cargo run -- gen --bits 2048 --out mykeys.json
 ```
 
-## Usage
+You can also omit the `--message` flag to be prompted for input.
 
-To use the RSA encryption system, follow the prompts in the command line:
+### Encrypting a message
 
-1. Run the program.
-2. Enter a message to encrypt when prompted.
-3. View the encrypted and decrypted output in the terminal.
+```bash
+cargo run -- encrypt --key mykeys.json --message "hello"
+```
 
-### Example
+### Decrypting a message
 
-```text
-Enter a message to encrypt:
-meow
-Original: meow
-Encrypted (Base64): CtoxhoVeIV9bLiuU2vqixDl9gSivvER2xlouzUYlVAftB1IsGPpe6SHMZnggqiK5KvS3v+w34md4sIsckWHkYHla0OjNI+544uGqE6u/jcXXorcxGrGpaX16nq+Cu2eIXcwAyfN1pdRZeVqZQ1fHrDu0cMc/hosidEdRs9WylLxuphyojWiHXvNZHAq3d+sjmM7xhSV3l6eHlJzIL/ce1AhVSdLZ+BEck78JC4xAXNjzlY88OLzV9z/JZzE9c7CPaFJsdTxM5p8ePhaytf5xaLZa+DNWGnwBHu3HCL5pdHyeELfRwWvRYQrxUHuFy2+23finrUiR1VIJ6Yj2bLcfOA==
-Decrypted: meow
+```bash
+cargo run -- decrypt --key mykeys.json --ciphertext <base64>
 ```
 
 ## License
