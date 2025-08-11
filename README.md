@@ -29,49 +29,49 @@ cargo build
 ## Quick start (raw RSA, JSON keys)
 
 - Generate JSON keypair:
-
+  ```bash
   cryptrsa gen --bits 2048 --out keypair.json --public-out public.json
-
+  ```
 - Encrypt/Decrypt a short UTF-8 message (must be numerically < n):
-
+  ```bash
   cryptrsa encrypt --key public.json --message "hello"
 
   cryptrsa decrypt --key keypair.json --ciphertext BASE64
-
+  ```
 - Encrypt/Decrypt arbitrary files with raw RSA chunking:
-
+  ```bash
   cryptrsa encrypt-bytes --key public.json --in-file input.bin --out-file cipher.b64
 
   cryptrsa decrypt-bytes --key keypair.json --in-file cipher.b64 --out-file output.bin --base64
-
+  ```
 ## Secure modes (PEM keys)
 
 - Generate PEM keys (PKCS#8 private, SPKI public):
-
+  ```bash
   cryptrsa gen-pem --bits 2048 --private-out private.pem --public-out public.pem
-
+  ```
 - RSA-OAEP (SHA-256) encryption/decryption:
-
+  ```bash
   cryptrsa encrypt-oaep --public-pem public.pem --in-file msg.bin --out-file ct.b64
 
   cryptrsa decrypt-oaep --private-pem private.pem --in-file ct.b64 --out-file msg.bin
-
+  ```
 - RSA-PSS (SHA-256) signing/verification:
-
+  ```bash
   cryptrsa sign-pss --private-pem private.pem --in-file msg.bin --sig-out sig.b64
 
   cryptrsa verify-pss --public-pem public.pem --in-file msg.bin --sig-file sig.b64
-
+  ```
 ## Hybrid RSA + AES-GCM (recommended for large files)
 
 - Encrypt: AES-256-GCM for data, RSA-OAEP for the AES key. Output is JSON with base64 fields enc_key, nonce, ct.
-
+  ```bash
   cryptrsa encrypt-hybrid --public-pem public.pem --in-file large.bin --out-file package.json
-
+  ```
 - Decrypt:
-
+  ```bash
   cryptrsa decrypt-hybrid --private-pem private.pem --in-file package.json --out-file large.bin
-
+  ```
 ## CLI reference (subcommands)
 
 - gen: Generate a JSON keypair; optionally write public part separately
